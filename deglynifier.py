@@ -87,6 +87,10 @@ class NMRFolder:
 
         orig_path = nmr_path / "orig"
 
+        if not orig_path.exists():
+            logger.error("Unknown sample ID: saving as UNKNOWN.")
+            return "UNKNOWN"
+
         m = re.search(r"Sample ID\s*[:-]{0,2}(.*)", orig_path.read_text())
 
         if m is not None:
@@ -99,11 +103,11 @@ class NMRFolder:
                 if m is not None:
                     if (sample_id := m.group(1).strip()) != "":
                         logger.info(f"Using the NAME field ({sample_id}).")
-                        return sample_id
+                        return re.sub(r'[^\w_. -]', '_', sample_id)
                 logger.error("Unknown sample ID: saving as UNKNOWN.")
                 return "UNKNOWN"
             else:
-                return sample_id
+                return re.sub(r'[^\w_. -]', '_', sample_id)
 
         else:
             logger.error("Unknown sample ID: saving as UNKNOWN.")
